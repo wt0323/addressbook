@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="shortcut icon" href="#" />
+    <title>学生信息</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/layui/css/layui.css}">
+</head>
+<body>
+<div class="content" style="margin-top: 10px;">
+    <!--通用头部-->
+    <div class="layedit-toolbar">
+        <div class="layui-inline">
+            <button id="add-m" type="button" class="layui-btn">添加</button>
+            <button id="refresh" type="button" class="layui-btn">刷新</button>
+        </div>
+    </div>
+    <table id="initial-table" lay-filter="initial-table"></table>
+</div>
+<script type="text/html" id="tableBar">
+    <a class="layui-btn layui-btn-xs  layui-btn-danger " lay-event="no">删除</a>
+</script>
+<div id="demoForm"  style="display: none;height:100%; padding: 25px; " >
+    <div class="layui-row" style=" height: 100%; ">
+        <div  style=" height: 100%; ">
+            <div class="layui-form" style="user-select: none;">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">新增专业：</label>
+                    <div class="layui-input-block">
+                        <input type="text" class="layui-input" name="account"  id="add-major"/>
+                        <label class="tips account-tips"></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="/static/layui/layui.js"></script>
+</body>
+<script>
+    var layers;
+
+    layui.use(['table', 'jquery','layer'], function () {
+        var table = layui.table,
+            $ = layui.jquery;
+        layers = layui.layer;
+        table.render({
+            id:"user",
+            elem: '#initial-table', //要加载数据的table对象
+            url: '/getAllMajor',    //后台接口
+            //   , toolbar: '#toolbarDemo'
+            title: '管理员',
+            where:{search:''}, //额外参数
+            height: 700,  //固定高度，防止数据少时，分页显示太靠前
+            page: true,  //分页
+            limits: [20, 30, 40],//每页显示 选择项
+            limit: 20, //每页默认显示的数量
+            cols: [
+                [
+                    {type: 'checkbox', fixed: 'left'},
+                    {field: 'id', title: 'ID', width: 80, fixed: 'left',align:'center', unresize: true, sort: true},
+                    {field: 'majorName', title: '账号',align:'center'},
+                    {align: 'majorName', toolbar: '#tableBar', title: '操作', width: 80}
+                ]
+            ]
+        });
+
+        table.on('tool(initial-table)', function (obj) {
+            var data = obj.data;    //获得当前行数据
+            //console.log(obj)
+            if (obj.event === 'no') {    //获得 lay-event 对应的值
+                layers.open({
+                    title: '删除专业',
+                    content: '确认删除该专业吗？',
+                    btn:["确定","取消"],
+                    yes: function (index) {
+                        $.ajax({
+                            async : false,
+                            cache:false,
+                            type: 'POST',
+                            url:'/delMajor',
+                            data: {"id":data.id},
+                            error:function(){
+                                layers.msg("ajax执行失败！");
+                            },
+                            success:function(res){ //请求成功后处理函数。
+                                if(res.code==0){layers.msg("删除专业成功～");}
+                            }
+                        });layers.close(index);$(".layui-laypage-btn").click()
+                    },
+                    btn2: function (index) {layers.close(index);}
+                });
+            }
+
+        });
+
+        //头工具栏事件
+        $("#add-m").on("click",function () {
+            layers.open({
+                type:1,
+                title: '添加专业',
+                content: $('#demoForm'),
+                btn:["确定","取消"],
+                yes: function (index) {
+                    var x = $('#add-major').val();
+                    $.ajax({
+                        async : false,
+                        cache:false,
+                        type: 'POST',
+                        url:'/addMajor',
+                        data: {"name":x},
+                        error:function(){
+                            layers.msg("ajax执行失败！");
+                        },
+                        success:function(res){ //请求成功后处理函数。
+                            if(res.code==0){layers.msg("添加专业成功～");}else {layers.msg(res.msg);}
+                        }
+                    });layers.close(index);$(".layui-laypage-btn").click()
+                },
+                btn2: function (index) {layers.close(index);}
+            });
+        });
+
+        $("#refresh").click(function () {
+            $(".layui-laypage-btn").click()
+        })
+    });
+
+</script>
+</html>

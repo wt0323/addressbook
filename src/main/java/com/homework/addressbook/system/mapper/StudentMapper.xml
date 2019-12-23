@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：必须与对应的接口全类名一致 id:必须与对应接口的某个对应的方法名一致 -->
+<mapper namespace="com.homework.addressbook.system.mapper.StudentMapper">
+    <!--学生-->
+    <select id="getStudentName" resultType="com.homework.addressbook.entity.Student">
+       SELECT s.*,m.major_name major FROM `student` s
+        LEFT JOIN major m ON m.id =  s.major_id
+        WHERE 1=1 AND s.login_name = #{loginName}
+    </select>
+    <select id="getStudentInfo" resultType="com.homework.addressbook.entity.Student">
+       SELECT s.*,m.major_name major FROM `student` s
+        LEFT JOIN major m ON m.id =  s.major_id
+        WHERE 1=1 AND s.id = #{id}
+    </select>
+    <select id="getStudentNavigation" resultType="com.homework.addressbook.entity.Major">
+        SELECT * FROM `major` WHERE 1=1
+    </select>
+    <update id="updateStudent">
+        UPDATE student SET password=#{password},`name`=#{name},major_id=#{majorId},student_class=#{studentClass},status=1,`type`=0
+        WHERE login_name=#{loginName}
+    </update>
+    <update id="upStudentInfo">
+        UPDATE student SET in_school=#{inSchool},`leave_school`=#{leaveSchool},workLocation=#{workLocation},city=#{city},phone=#{phone},email=#{email}
+        WHERE id=#{id}
+    </update>
+
+    <insert id="addStudent">
+        INSERT INTO student (login_name,password,`name`,major_id,student_class)
+        VALUES (#{loginName},#{password},#{name},#{majorId},#{studentClass})
+    </insert>
+
+    <select id="getAllStudentInfo" resultType="com.homework.addressbook.entity.Student">
+     SELECT s.`name`,s.sex, s.in_school,s.student_class, s.leave_school,
+        s.workLocation,s.city,s.phone,s.email,m.major_name major  FROM student s
+        LEFT JOIN major m ON m.id =  s.major_id
+        WHERE 1=1
+        <if test="search != null and search != ''">
+            and ( `name` like CONCAT('%',#{search},'%') or `city` like CONCAT('%',#{search},'%') )
+        </if>
+
+    </select>
+
+    <select id="getStudentInfoByMajorId" resultType="com.homework.addressbook.entity.Student">
+     SELECT s.`name`,s.sex,s.in_school,s.student_class, s.leave_school,
+        s.workLocation,s.city,s.phone,s.email,m.major_name major  FROM student s
+        LEFT JOIN major m ON m.id =  s.major_id
+        WHERE 1=1 AND s.major_id =#{majorId}
+        <if test="search != null and search != ''">
+            and ( `name` like CONCAT('%',#{search},'%') or `city` like CONCAT('%',#{search},'%') )
+        </if>
+    </select>
+
+    <update id="UpStudentTime">
+           UPDATE student SET `login_num`=login_num+1,login_time=now() WHERE id=#{id}
+    </update>
+
+    <delete id="delStudentById">
+          DELETE FROM student WHERE  id=#{id}
+    </delete>
+</mapper>

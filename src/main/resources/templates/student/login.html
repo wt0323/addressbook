@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>后台登录</title>
+    <link rel="shortcut icon" href="#" />
+    <link rel="stylesheet" th:href="@{/static/css/backstage/login.css}">
+    <link rel="stylesheet" th:href="@{/static/layui/css/layui.css}">
+    <style>
+        body{
+         background: #009688;
+        }
+        body{
+            min-height: 135px;
+            background: url(/static/images/profile/loginbg.jpg);
+            background-size: 100% 100%;
+        }
+        #demoForm input{
+            width: 85%;
+        }
+        .tips{
+            color: red;
+            display: none;
+            position: absolute;
+            right: 15%;
+        }
+        .layui-form-item {
+            margin-top: 25px;
+        }
+        .layui-form-select dl { max-height:200px; }
+    </style>
+</head>
+<body>
+    <div class="admin-login-background">
+        <div class="layui-form login-form">
+            <form class="layui-form" >
+                <div class="layui-form-item logo-title" style=" margin: 0; padding: 0; ">
+                    <h1 style=" color: #FFF; ">通讯录系统登录</h1>
+                </div>
+                <div class="layui-form-item">
+                    <label><i class="icono-user"></i></label>
+                    <input type="text" name="username" lay-verify="required|account" placeholder="用户名或者邮箱" autocomplete="off" class="layui-input" value="qq123456">
+                </div>
+                <div class="layui-form-item">
+                    <label><i class="password"></i></label>
+                    <input type="password" name="password" lay-verify="required|password" placeholder="密码" autocomplete="off" class="layui-input" value="qq123456">
+                </div>
+                <div class="layui-form-item">
+                    <label><i class="verify"></i></label>
+                    <div class="verify-wrap" id="verify-wrap"></div>
+                </div>
+                <div class="layui-form-item">
+                    <button class="layui-btn layui-btn-radius " lay-submit="" lay-filter="login" style="width: 45%">登 入</button>
+                    <button type="button" class="layui-btn layui-btn-radius" onclick="register()" style="width: 45%">注册</button>
+                </div>
+            </form>
+        </div>
+        <div id="demoForm"  style="display: none;height:100%; padding: 25px; " >
+            <div class="layui-row" style=" height: 100%; ">
+                <div  style=" height: 100%; ">
+                    <div class="layui-form" style="user-select: none;">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">账号：</label>
+                            <div class="layui-input-block">
+                                <!--正则强制要求  英文加数字 -->
+                                <input type="text" class="layui-input" name="account" placeholder="设置账号，只能字母和数字(6~16位)" min="6" max="16" id="reg-account"
+                                       onKeyUp="value=value.replace(/[^\w\.\/]/ig,'')" />
+                                <label class="tips account-tips"></label>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">密码：</label>
+                            <div class="layui-input-block">
+                                <input type="text" class="layui-input" name="password" placeholder="设置密码，只能字母和数字(6~16位)"   min="6" max="16" id="reg-password"
+                                       onKeyUp="value=value.replace(/[^\w\.\/]/ig,'')" />
+                                <label class="tips password-tips"></label>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">姓名：</label>
+                            <div class="layui-input-block">
+                                <input type="text" class="layui-input" placeholder="请输入准确姓名，不能使用网名,否则无法通过审核"  id="reg-name"/>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">专业：</label>
+                            <div class="layui-input-block">
+                                <select name="city" lay-verify="required" id="reg-major">
+                                    <option th:each="mar:${session.major}" th:value="${mar.getId()}" th:text="${mar.getMajorName()}">专业填写有误</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">班级：</label>
+                            <div class="layui-input-block">
+                                <input type="text" class="layui-input" placeholder="请输入准确班级,只能为数字"   id="reg-class"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" th:src="@{/static/layui/layui.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/common/jquery.min.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/common/verify.js}"></script>
+    <script>
+        var inputWidth = $("[name='password']").innerWidth();
+        var SlideVerifyPlug = window.slideVerifyPlug;
+        var slideVerify = new SlideVerifyPlug('#verify-wrap',{
+            wrapWidth:inputWidth,//设置 容器的宽度 ，默认为 350 ，也可不用设，你自己css 定义好也可以，插件里面会取一次这个 容器的宽度
+            initText:'滑动滑块进行验证',  //设置  初始的 显示文字
+            sucessText:'验证通过，快登陆吧',//设置 验证通过 显示的文字
+            getSucessState:function(res){
+                //当验证完成的时候 会 返回 res 值 true，只留了这个应该够用了
+                verify=res;
+            }
+        });
+        $("#resetBtn").on('click',function(){
+            slideVerify.resetVerify();//可以重置 插件 回到初始状态
+        });
+        $("#getState").on('click',function(){
+            alert(slideVerify.slideFinishState);   //这个可以拿到 当前验证状态  是否完成
+        });
+        var slideVerify2 = new SlideVerifyPlug('#verify-wrap2',{
+            wrapWidth:'300',
+            initText:'请按住滑块',
+            sucessText:'验证通过',
+
+        });
+        $("#resetBtn2").on('click',function(){
+            slideVerify2.resetVerify();
+        });
+        $("#getState2").on('click',function(){
+            alert(slideVerify2.slideFinishState);
+        })
+    </script>
+<script>
+    /*login*/
+    var verify=false;
+    var layer;
+    layui.use(['layer','form'], function(){
+        var form = layui.form;
+        layer = layui.layer;
+        //监听提交
+        form.on('submit(login)', function(data){
+            var x = data.field;
+            if(!verify){
+                layer.msg('请进行验证！！');
+                return false;
+            }
+            $.ajax({
+                url: "/student/backstage",
+                type: "post",
+                data: {"loginName": x.username, "password": x.password},
+                success: function (result) {
+                    if (result.code == 0) {
+                        window.location = '/student/index';
+                    } else {
+                        layer.msg(result.msg, {
+                            icon: 5,
+                            time: 3000 //不自动关闭
+                        });
+                    }
+                }
+            });
+            return false;
+        });
+    });
+    function register() {
+        layer.open({
+            type: 1,
+            title: ['通讯录系统注册', 'font-size:24px;text-align: center; padding: 0;'],
+            closeBtn:false,
+            area: ['50%', '60%'],
+            offset: '100px',
+            fixed:true,
+            content: $("#demoForm"),
+            btn: ['注册', '取消'],
+            yes: function (index, layero) {
+                //按钮【按钮一】的回调
+                //获取交给后台的参数
+                var loginName = $("#reg-account").val(),
+                    Password = $("#reg-password").val(),
+                    major = $("#reg-major").val(),
+                    name = $("#reg-name").val(),
+                    studentClass = $("#reg-class").val();
+                //判断输入是否规范
+                if(loginName==""){  //要求非空
+                    $(".account-tips").html("账号格式有误");
+                    $(".account-tips").show();
+                    setTimeout(function () {
+                        $(".account-tips").hide();
+                    },2000);
+                    return false;
+                }
+                if(Password==""){
+                    $(".password-tips").html("密码格式有误");
+                    $(".password-tips").show();
+                    setTimeout(function () {
+                        $(".password-tips").hide();
+                    },2000);
+                    return false;
+                }
+                $.ajax({
+                    cache:false,
+                    type:'post',
+                    url:'/student/register',    //参数提交后台接口
+                    data:{"loginName": loginName,"Password":Password,"studentClass":studentClass,"majorId":major,"name":name},
+                    error:function () {
+                        alert("注册失败，请求出错")
+                    },
+                    success:function (data) {
+                        if(data.code==0){
+                            //关闭弹出框
+                            layer.close(index);
+                            /*弹出后台反馈提示信息*/
+                            layer.msg(data.msg);
+                            setTimeout(function () {
+                                /*前往登录页面*/
+                                window.location = '/';
+                            },2000);
+                        }else {
+                            layer.close(index);
+                            layer.msg(data.msg)
+                        }
+                    }
+                });
+            },
+            btn2: function (index,layero) {
+                layer.close(index);
+            },
+            success: function () {
+
+            }
+            //重新渲染 固定写法
+        });
+    }
+
+</script>
+</body>
+</html>

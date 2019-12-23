@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="shortcut icon" href="#" />
+    <title>管理员管理</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/layui/css/layui.css}">
+    <style>
+
+    </style>
+</head>
+<body>
+<div class="content" style="margin-top: 10px;">
+    <!--通用头部-->
+    <div class="layedit-toolbar">
+        <div class="layui-inline">
+            <button id="refresh" type="button" class="layui-btn">刷新</button>
+        </div>
+    </div>
+    <table id="initial-table" lay-filter="initial-table"></table>
+</div>
+<script type="text/javascript" src="/static/layui/layui.js"></script>
+</body>
+<script>
+    layui.use(['table', 'jquery'], function () {
+        var table = layui.table,
+            $ = layui.jquery;
+        table.render({      //表格初始化
+            id:"user",
+            elem: '#initial-table', //要加载数据的table对象
+            url: '/admin',    //后台接口，
+            //   , toolbar: '#toolbarDemo'
+            title: '管理员',
+            where:{search:''}, //额外参数
+            height: 700,  //固定高度，防止数据少时，分页显示太靠前
+            page: true,  //分页
+            limits: [20, 30, 40],//每页显示 选择项
+            limit: 20, //每页默认显示的数量
+            cols: [
+                [   //接口返回数据进行加载
+                    {type: 'checkbox', fixed: 'left'},
+                    {field: 'id', title: 'ID', width: 100, fixed: 'left',align:'center', unresize: true, sort: true},
+                    {field: 'user_name', title: '用户名',align:'center'},
+                    {field: 'nick_name', title: '昵称',align:'center'},
+                    {field: 'lv', title: '管理员等级',align:'center',templet: function(row){
+                        var lvName;
+                        if(row.lv==0){lvName="超级管理员"}else{lvName="普通管理员"}
+                        return lvName;
+                    }},
+                    {field: 'remark', title: '备注',align:'center'}
+                ]
+            ]
+        });
+
+        //头工具栏事件
+
+        $("#refresh").click(function () {
+            $(".layui-laypage-btn").click()
+        })
+    });
+</script>
+</html>

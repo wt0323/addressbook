@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="shortcut icon" href="#" />
+    <title>学生审核</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/layui/css/layui.css}">
+</head>
+<body>
+<div class="content" style="margin-top: 10px;">
+    <!--通用头部-->
+    <div class="layedit-toolbar">
+        <div class="layui-inline">
+            <button id="refresh" type="button" class="layui-btn">刷新</button>
+        </div>
+    </div>
+    <table id="initial-table" lay-filter="initial-table"></table>
+</div>
+<script type="text/html" id="tableBar">
+    <a class="layui-btn layui-btn-xs" lay-event="yes">通过</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="no">遣返</a>
+</script>
+
+<div id="max"  style="display: none;height:100%; padding: 25px; " >
+    <div class="layui-row" style=" height: 100%; ">
+        <div class="layui-form" style="user-select: none;">
+            <div class="layui-form-item">
+                <label class="layui-form-label">选择框</label>
+                <div class="layui-input-block" style=" width: 70%; ">
+                    <select name="city" lay-verify="required" id="error-id">
+                        <option value="1" selected="selected">班级填写有误</option>
+                        <option value="2">专业填写有误</option>
+                        <option value="3">姓名填写有误</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="/static/layui/layui.js"></script>
+</body>
+<script>
+    layui.use(['table', 'jquery','form'], function () {
+        var table = layui.table,
+            form = layui.form,
+            $ = layui.jquery;
+        table.render({
+            id:"user",
+            elem: '#initial-table', //要加载数据的table对象
+            url: '/checkStudent',    //后台接口
+            //   , toolbar: '#toolbarDemo'
+            title: '管理员',
+            height: 700,  //固定高度，防止数据少时，分页显示太靠前
+            page: true,  //分页
+            limits: [20, 30, 40],//每页显示 选择项
+            limit: 20, //每页默认显示的数量
+            cols: [
+                [
+                    {type: 'checkbox', fixed: 'left'},
+                    {field: 'id', title: 'ID', width: 100, fixed: 'left',align:'center', unresize: true, sort: true},
+                    {field: 'loginName', title: '账号',align:'center'},
+                    {field: 'password', title: '密码',align:'center'},
+                    {field: 'name', title: '姓名',align:'center'},
+                    {field: 'major', title: '专业',align:'center'},
+                    {field: 'studentClass', title: '班级',align:'center'},
+                    {field: 'status', title: '审核状态',align:'center',templet: function(row){
+                        var rName;
+                        console.log(row.sClass);
+                        if(row.status==1){rName="待审核"}else {rName="未知"}
+                        return rName;
+                    }},
+                    {align: 'center', toolbar: '#tableBar', title: '操作', width: 200}
+                ]
+            ]
+        });
+
+        table.on('tool(initial-table)', function (obj) {
+            var data = obj.data;  // 获得当前行数据
+            var event = obj.event; // 获得lay-event对应的值
+            if (event == 'yes') {
+                layer.open({
+                    title: '确认通过吗？',
+                    content: "确认通过吗?",
+                    btn:["确定","取消"],
+                    yes: function (index) {
+                        $.ajax({
+                            async : false,
+                            cache:false,
+                            type: 'POST',
+                            url:'/upStudentStatus',//因为点击获取的是一级目录，所以，新建的菜单等级要+1
+                            data: {id:data.id},
+                            error:function(){
+                                layer.msg("ajax执行失败！");
+                            },
+                            success:function(res){ //请求成功后处理函数。
+                                if(res.code==0){
+                                    layer.msg("该同学已确认通过～");
+                                }
+                                layer.close(index);
+                            }
+                        });
+                        layer.close(index);
+                    },
+                    btn2: function (index) {
+                        layer.close(index);
+                    }
+                });
+            } else if (event == 'no') {
+                //重置编辑框
+                layer.open({
+                    title: ['遣返原因选择', 'font-size:24px;text-align: center; padding: 0;'],
+                    type:1,
+                    area: ['40%', '50%'],
+                    content: $("#max"),
+                    btn:["确定","取消"],
+                    yes: function (index) {
+                        $.ajax({
+                            async : false,
+                            cache:false,
+                            type: 'POST',
+                            url:'/upStudentType',
+                            data: {id:data.id,type:$("#error-id").val()},
+                            error:function(){
+                                layer.msg("ajax执行失败！");
+                            },
+                            success:function(res){ //请求成功后处理函数。
+                                if(res.code==0){
+                                    layer.msg("该同学已经被遣返回去了～");
+                                }
+                                layer.close(index);
+                            }
+                        });
+                        layer.close(index);
+                    },
+                    btn2: function (index) {
+                        layer.close(index);
+                    }
+                });
+            }
+        });
+
+        //头工具栏事件
+
+        $("#refresh").click(function () {
+            $(".layui-laypage-btn").click()
+        })
+    });
+</script>
+</html>

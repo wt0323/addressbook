@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>后台管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="shortcut icon" href="#" />
+    <link rel="stylesheet" th:href="@{/static/layui/css/layui.css}">
+    <link rel="stylesheet" th:href="@{/static/css/backstage/main.css}">
+</head>
+<body class="main_body">
+<div class="layui-layout layui-layout-admin">
+    <!-- 顶部 -->
+    <div class="layui-header header">
+        <div class="layui-main">
+            <a href="#" class="logo">通讯录后台管理</a>
+            <!-- 显示/隐藏菜单 -->
+            <a href="javascript:" class="iconfont hideMenu"><i data-statu="1" class="layui-icon layui-icon-shrink-right" onclick="hideMenu(this)"></i>  </a>
+            <!-- 天气信息 引用气象局js插件-->
+            <div class="weather" pc>
+                <div id="tp-weather-widget"></div>
+                <script>(function(T,h,i,n,k,P,a,g,e){
+                    g=function(){
+                        P=h.createElement(i);
+                        a=h.getElementsByTagName(i)[0];
+                        P.src=k;P.charset="utf-8";P.async=1;
+                        a.parentNode.insertBefore(P,a)};
+                    T["ThinkPageWeatherWidgetObject"]=n;
+                    T[n]||(T[n]=function(){
+                            (T[n].q=T[n].q||[]).push(arguments)}
+                    );
+                    T[n].l=+new Date();
+                    if(T.attachEvent){
+                        T.attachEvent("onload",g)
+                    }else{
+                        T.addEventListener("load",g,false)
+                    }
+                }(window,document,"script","tpwidget","//widget.seniverse.com/widget/chameleon.js"))</script>
+                <script>
+                    tpwidget("init", {
+                        "flavor": "slim",
+                        "location": "WX4FBXXFKE4F",
+                        "geolocation": "enabled",
+                        "language": "zh-chs",
+                        "unit": "c",
+                        "theme": "chameleon",
+                        "container": "tp-weather-widget",
+                        "bubble": "disabled",
+                        "alarmType": "badge",
+                        "color": "#FFFFFF",
+                        "uid": "U9EC08A15F",
+                        "hash": "039da28f5581f4bcb5c799fb4cdfb673"
+                    });
+                    tpwidget("show");
+                </script>
+            </div>
+            <!-- 顶部右侧菜单 -->
+            <ul class="layui-nav top_menu">
+                <li class="layui-nav-item" mobile>
+                    <a href="javascript:" class="mobileAddTab" data-url="page/user/changePwd.html"><i class="iconfont icon-shezhi1" data-icon="icon-shezhi1"></i><cite>设置</cite></a>
+                </li>
+                <li class="layui-nav-item" mobile>
+                    <a href="/loginOut" class="signOut"><i class="iconfont icon-loginout"></i> 退出</a>
+                </li>
+                <li class="layui-nav-item" pc>
+                    <a href="javascript:">
+                        <img src="/static/images/profile/chuanzhang.jpg" class="layui-circle" width="35" height="35" alt="头像">
+                        <cite th:utext="${session.user.getNickName()}">昵称</cite>
+                    </a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="javascript:;" data-url="page/user/userInfo.html"><i class="iconfont icon-zhanghu" data-icon="icon-zhanghu"></i><cite>个人资料</cite></a></dd>
+                        <dd><a id="updPassword" href="javascript:;"><i class="iconfont icon-shezhi1" data-icon="icon-shezhi1"></i><cite>修改密码</cite></a></dd>
+                        <dd><a href="/loginOut" class="signOut"><i class="iconfont icon-loginout"></i><cite>退出登陆</cite></a></dd>
+                    </dl>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!--左侧-->
+    <div class="layui-side layui-bg-black">
+        <div class="user-photo">
+            <a class="img" title="我的头像" ><img id="user-img" src="/static/images/profile/chuanzhang.jpg" alt="头像"></a>
+            <p>你好！<span class="userName" th:utext="${session.user.getNickName()}">昵称</span></p>
+        </div>
+        <div class="navBar layui-side-scroll">
+            <ul class="layui-nav layui-nav-tree">
+                <!--模板循环遍历session域 获取菜单 渲染菜单-->
+                <li class="layui-nav-item" th:each="permission : ${session.navigation}" th:if="${permission.getNavLv()==1}">
+                    <a href="javascript:" th:attr="data-url=''">
+                        <i class="layui-icon " data-icon=""></i>
+                        <cite th:text="${permission.getNavName()}">菜单名字</cite>
+                        <span class="layui-nav-more"></span>
+                    </a>
+                    <dl class="layui-nav-child">
+                        <dd th:each="permission2 : ${session.navigation}" th:if="${permission.id==permission2.getNavParent()}">
+                            <a href="javascript:"  th:attr="data-url='/'+${permission.getNavUrl()}+'/'+${permission2.getNavUrl()}">
+                                <i class="layui-icon" data-icon="" ></i>
+                                <cite th:text="${permission2.getNavName()}">菜单名字</cite>
+                            </a>
+                        </dd>
+                    </dl>
+                </li>
+                <span class="layui-nav-bar" style="top:22px; height: 0; opacity: 0;"></span>
+            </ul>
+        </div>
+    </div>
+    <!--右侧-->
+    <div class="layui-body layui-form">
+        <div class="layui-tab marg0" lay-filter="bodyTab" id="top_tabs_box">
+            <ul class="layui-tab-title top_tab" id="top_tabs">
+                <li class="layui-this" lay-id=""><i class="iconfont icon-computer"></i> <cite>后台首页</cite></li>
+            </ul>
+            <ul class="layui-nav closeBox">
+                <li class="layui-nav-item">
+                    <a href="javascript:;" class="mouse"><i class="iconfont icon-caozuo"></i> 页面操作</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="javascript:" class="refresh refreshThis"><i class="layui-icon">&#x1002;</i> 刷新当前</a></dd>
+                        <dd><a href="javascript:" class="closePageOther"><i class="iconfont icon-prohibit"></i> 关闭其他</a></dd>
+                        <dd><a href="javascript:" class="closePageAll"><i class="iconfont icon-guanbi"></i> 关闭全部</a></dd>
+                    </dl>
+                </li>
+            </ul>
+            <div class="layui-tab-content clildFrame">
+                <div class="layui-tab-item layui-show">
+                    <iframe src="/backstage/backIndex"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" th:src="@{/static/layui/layui.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/backstage/index.js}"></script>
+<script>
+    //此处js  无任何功能 用于动画效果
+    $("#top_tabs_box").on("contextmenu","#top_tabs li",function (e) {
+        e.preventDefault(); // 阻止右键菜单默认行为
+        var char = $("#top_tabs_box").width()-e.offsetX-$(this).width();
+        $("#top_tabs_box .layui-nav-child").addClass("layui-show");
+        $("#top_tabs_box .layui-nav-child").css("top","15px");
+        $("#top_tabs_box .layui-nav-child").css("left","-"+char+"px")
+    });
+    $("#top_tabs_box").on("click","#top_tabs li",function () {
+        $("#top_tabs_box .layui-nav-child").removeClass("layui-show");
+        $("#top_tabs_box .layui-nav-child").attr("style","");
+    });
+
+    $("#top_tabs_box .mouse").mouseover(function(){
+        $("#top_tabs_box .layui-anim-upbit").attr("style","");
+    });
+
+    function hideMenu(obj) {
+        var statu = obj.getAttribute("data-statu");
+        if(statu==1){
+            obj.classList.add("layui-icon-spread-left");
+            obj.classList.remove("layui-icon-shrink-right");
+            obj.setAttribute("data-statu",2);
+        }else {
+            obj.classList.add("layui-icon-shrink-right");
+            obj.classList.remove("layui-icon-spread-left");
+            obj.setAttribute("data-statu",1);
+        }
+    }
+    //生成从minNum到maxNum的随机数
+    function randomNum(minNum,maxNum){
+        switch(arguments.length){
+            case 1:
+                return parseInt(Math.random()*minNum+1,10);
+                break;
+            case 2:
+                return parseInt(Math.random()*(maxNum-minNum+1)+minNum,10);
+                break;
+            default:
+                return 0;
+        }
+    }
+    function test(obj) {
+        obj = obj||{};
+    }
+</script>
+</body>
+</html>

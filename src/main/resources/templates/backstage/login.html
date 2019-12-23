@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>后台登录</title>
+    <link rel="shortcut icon" href="#" />
+    <link rel="stylesheet" th:href="@{/static/css/backstage/login.css}">
+    <link rel="stylesheet" th:href="@{/static/layui/css/layui.css}">
+</head>
+<body>
+    <canvas id="c" style=" position: fixed; "></canvas>
+    <div class="admin-login-background">
+        <div class="layui-form login-form">
+            <form class="layui-form" >
+                <div class="layui-form-item logo-title">
+                    <h1>管理员登录</h1>
+                </div>
+                <div class="layui-form-item">
+                    <label><i class="icono-user"></i></label>
+                    <input type="text" name="username" lay-verify="required|account" placeholder="用户名或者邮箱" autocomplete="off" class="layui-input" value="kangyan">
+                </div>
+                <div class="layui-form-item">
+                    <label><i class="password"></i></label>
+                    <input type="password" name="password" lay-verify="required|password" placeholder="密码" autocomplete="off" class="layui-input" value="a123456">
+                </div>
+                <div class="layui-form-item">
+                    <label><i class="verify"></i></label>
+                    <div class="verify-wrap" id="verify-wrap"></div>
+                </div>
+                <div class="layui-form-item">
+                    <button class="layui-btn layui-btn-fluid" lay-submit="" lay-filter="login">登 入</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script type="text/javascript" th:src="@{/static/layui/layui.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/common/jquery.min.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/common/verify.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/backstage/login.js}"></script>
+
+<script>
+    var verify=false;
+    layui.use('form', function(){
+        var form = layui.form;
+        //表单按钮点击触发
+        form.on('submit(login)', function(data){
+            var x = data.field;
+            if(!verify){
+                layer.msg('请进行验证！！');
+                return false;
+            }
+            $.ajax({    //请求后台
+                url: "/backstage",  //接口
+                type: "post",
+                data: {"userName": x.username, "password": x.password},
+                success: function (result) {
+                    if (result.code == 0) { //0成功，其他失败
+                        window.location = '/index'; //验证完，前往后台
+                    } else {
+                        layer.msg(result.msg, {
+                            icon: 5,
+                            time: 1800 //不自动关闭
+                        });
+                    }
+                }
+            });
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

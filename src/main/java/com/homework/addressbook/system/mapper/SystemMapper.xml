@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：必须与对应的接口全类名一致 id:必须与对应接口的某个对应的方法名一致 -->
+<mapper namespace="com.homework.addressbook.system.mapper.SystemMapper">
+    <!--学生-->
+    <select id="getStudentName" resultType="com.homework.addressbook.entity.Student">
+        SELECT * FROM `student` WHERE 1=1 AND login_name = #{loginName}
+    </select>
+    <select id="getAllStudent" resultType="com.homework.addressbook.entity.Student">
+        SELECT s.*,m.major_name major FROM `student` s
+        LEFT JOIN major m ON m.id = s.major_id
+        WHERE 1=1 AND s.`status`!=1
+        <if test="search != null and search != ''">
+            and ( s.id = #{search} or s.`name` like CONCAT('%',#{search},'%') )
+        </if>
+        limit #{start},#{limit}
+    </select>
+    <select id="getAllStudentCount" resultType="java.lang.Integer">
+          SELECT count(0) FROM `student` WHERE 1=1 AND `status`=0
+        <if test="search != null and search != ''">
+            and ( id = #{search} or `name` like CONCAT('%',#{search},'%') )
+        </if>
+    </select>
+
+    <!--管理员-->
+    <select id="getUserByUserName" resultType="com.homework.addressbook.entity.User">
+        SELECT * FROM `user` WHERE 1=1 AND user_name = #{userName}
+    </select>
+    <select id="getAllMajor" resultType="com.homework.addressbook.entity.Major">
+      	SELECT * FROM major WHERE 1=1
+        limit #{start},#{limit}
+    </select>
+    <select id="getAllMajorCount" resultType="java.lang.Integer">
+      	SELECT count(0) FROM major WHERE 1=1
+    </select>
+
+    <select id="getAdmin" resultType="com.homework.addressbook.entity.User">
+        SELECT id,user_name,remark,nick_name,lv FROM `user` WHERE 1=1
+        <if test="search != null and search != ''">
+            and ( id = #{search} or user_name like CONCAT('%',#{search},'%') or remark like CONCAT('%',#{search},'%'))
+        </if>
+        limit #{start},#{limit}
+    </select>
+
+    <select id="getNavigationCount" resultType="java.lang.Integer">
+        SELECT count(0) FROM navigation  WHERE 1=1
+    </select>
+
+    <select id="getCount" resultType="java.lang.Integer">
+        SELECT count(0)  FROM `user` WHERE 1=1
+        <where>
+            <if test="search != null and search != ''">
+                and ( id = #{search} or user_name like CONCAT('%',#{search},'%') or remark like CONCAT('%',#{search},'%'))
+            </if>
+        </where>
+    </select>
+    <select id="getNavigation" resultType="com.homework.addressbook.entity.Navigation">
+        SELECT * FROM navigation  WHERE 1=1
+        <if test="lv!=0">
+            AND nav_use =1
+        </if>
+    </select>
+
+    <insert id="addNavigation">
+        INSERT INTO navigation (nav_name,nav_parent,nav_lv,nav_url,nav_use) VALUES (#{nav_name},#{nav_parent},#{nav_lv},#{nav_url},#{nav_use})
+    </insert>
+    <update id="editNavigation">
+        UPDATE navigation SET nav_name=#{nav_name},nav_lv=#{nav_lv},nav_parent=#{nav_parent},nav_use=#{nav_use},nav_url=#{nav_url} WHERE id=#{id}
+    </update>
+
+    <select id="getCheckStudent" resultType="com.homework.addressbook.entity.Student">
+        SELECT s.*,m.major_name major  FROM student s
+        LEFT JOIN major m ON m.id =  s.major_id
+        WHERE 1=1 and `status`=1
+        limit #{start},#{limit}
+    </select>
+
+    <select id="getCheckCount" resultType="java.lang.Integer">
+        SELECT count(0)  FROM student WHERE 1=1 and `status`=1
+    </select>
+    <select id="getmajorName" resultType="java.lang.Integer">
+      SELECT count(0)  FROM major WHERE 1=1 AND	 major_name=#{name}
+    </select>
+    <update id="upStudentStatus">
+        UPDATE student SET `status`=0 WHERE id=#{id}
+    </update>
+    <update id="proStudent">
+        UPDATE student SET `status`=2 WHERE id=#{id}
+    </update>
+    <update id="upStudentType">
+        UPDATE student SET `type`=#{type} WHERE id=#{id}
+    </update>
+    <update id="UpStudentTime">
+           UPDATE student SET `login_num`=login_num+1,login_time=now() WHERE id=#{id}
+    </update>
+    <delete id="delMajor">
+        DELETE FROM major WHERE  id=#{id}
+    </delete>
+    <insert id="addMajor">
+        INSERT INTO major (major_name) VALUES (#{name})
+    </insert>
+</mapper>

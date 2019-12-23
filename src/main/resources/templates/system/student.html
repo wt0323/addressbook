@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="shortcut icon" href="#" />
+    <title>学生信息</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/layui/css/layui.css}">
+</head>
+<body>
+<div class="content" style="margin-top: 10px;">
+    <!--通用头部-->
+    <div class="layedit-toolbar">
+        <div class="layui-inline">
+            <label class="layui-form-label">昵称：</label>
+            <div class="layui-input-inline">
+                <input type="text" name="keyWord"  autocomplete="off" placeholder="输入关键字进行搜索" class="layui-input">
+            </div>
+            <button id="search" type="button" class="layui-btn">搜索</button>
+            <button id="refresh" type="button" class="layui-btn">刷新</button>
+        </div>
+    </div>
+    <table id="initial-table" lay-filter="initial-table"></table>
+</div>
+<script type="text/html" id="tableBar">
+    <a class="layui-btn layui-btn-xs  layui-btn-danger " lay-event="no">禁用</a>
+    <a class="layui-btn layui-btn-xs   " lay-event="yes">恢复</a>
+</script>
+<script type="text/javascript" src="/static/layui/layui.js"></script>
+</body>
+<script>
+    var layers;
+
+    layui.use(['table', 'jquery','layer'], function () {
+        var table = layui.table,
+            $ = layui.jquery;
+            layers = layui.layer;
+        table.render({
+            id:"user",
+            elem: '#initial-table', //要加载数据的table对象
+            url: '/getAllStudent',    //后台接口
+            //   , toolbar: '#toolbarDemo'
+            title: '管理员',
+            where:{search:$('input[name="keyWord"]').val()}, //额外参数
+            height: 700,  //固定高度，防止数据少时，分页显示太靠前
+            page: true,  //分页
+            limits: [20, 30, 40],//每页显示 选择项
+            limit: 20, //每页默认显示的数量
+            cols: [
+                [
+                    {type: 'checkbox', fixed: 'left'},
+                    {field: 'id', title: 'ID', width: 80, fixed: 'left',align:'center', unresize: true, sort: true},
+                    {field: 'loginName', title: '账号',align:'center'},
+                    {field: 'name', title: '名字',align:'center'},
+                    {field: 'sex', title: '性别',align:'center',width:80,templet: function(row){
+                            if(row.sex==1){return "男"}else {return "女"}
+                    }},
+                    {field: 'major', title: '专业',align:'center'},
+                    {field: 'studentClass', title: '班级',align:'center'},
+                    {field: 'inSchool', title: '入校时间',align:'center'},
+                    {field: 'leaveSchool', title: '离校时间',align:'center'},
+                    {field: 'workLocation', title: '工作单位',align:'center'},
+                    {field: 'city', title: '现居城市',align:'center'},
+                    {field: 'phone', title: '联系电话',align:'center'},
+                    {field: 'email', title: '联系邮箱',align:'center'},
+                    {field: 'status', title: '状态',align:'center',width:80,templet: function(row){
+                            if(row.status==2){ return "<span style='color: red'>禁用<span>"}else {return "<span style='color: blue'>正常<span>"}
+                    }},
+                    {field: 'loginNum', title: '登录次数',width:100,align:'center'},
+                    {field: 'loginTime', title: '最后一次登录时间',width:100,align:'center'},
+                    {align: 'phone', toolbar: '#tableBar', title: '操作', width: 80}
+                ]
+            ]
+        });
+
+        table.on('tool(initial-table)', function (obj) {
+            var data = obj.data;    //获得当前行数据
+            //console.log(obj)
+            if (obj.event === 'no') {    //获得 lay-event 对应的值
+                layers.open({
+                    title: '禁用账号',
+                    content: '确认禁用该账号吗？',
+                    btn:["确定","取消"],
+                    yes: function (index) {
+                        $.ajax({
+                            async : false,
+                            cache:false,
+                            type: 'POST',
+                            url:'/proStudent',
+                            data: {"id":data.id},
+                            error:function(){
+                                layer.msg("ajax执行失败！");
+                            },
+                            success:function(res){ //请求成功后处理函数。
+                                if(res.code==0){layer.msg("禁用成功～");}
+                            }
+                        });layer.close(index);$(".layui-laypage-btn").click()
+                    },
+                    btn2: function (index) {layer.close(index);}
+                });
+            }else{    //获得 lay-event 对应的值
+                layers.open({
+                    title: '恢复账号',
+                    content: '确认恢复该账号吗？',
+                    btn:["确定","取消"],
+                    yes: function (index) {
+                        $.ajax({
+                            async : false,
+                            cache:false,
+                            type: 'POST',
+                            url:'/upStudentStatus',
+                            data: {"id":data.id},
+                            error:function(){
+                                layer.msg("ajax执行失败！");
+                            },
+                            success:function(res){ //请求成功后处理函数。
+                                if(res.code==0){layer.msg("禁用成功～");}
+                            }
+                        });layer.close(index);$(".layui-laypage-btn").click()
+                    },
+                    btn2: function (index) {layer.close(index);}
+                });
+            }
+        });
+
+        //头工具栏事件
+        $("#search").click(function () {
+            var search = $('input[name="keyWord"]').val();
+            table.reload('user',{
+                where:
+                    { //设定异步数据接口的额外参数，任意设
+                        search:search
+                    },
+                page: {
+                    curr: 1 //重新从第 1 页开始
+                }
+            });
+        });
+        $("#refresh").click(function () {
+            $(".layui-laypage-btn").click()
+        })
+    });
+
+</script>
+</html>

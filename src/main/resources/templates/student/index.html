@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>通讯录管理系统</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="shortcut icon" href="#" />
+    <link rel="stylesheet" th:href="@{/static/layui/css/layui.css}">
+    <link rel="stylesheet" th:href="@{/static/css/backstage/main.css}">
+    <style>
+        .layui-tab-item.layui-show {
+            top: 0 ;
+            background: #fff;
+            animation: none;
+        }
+    </style>
+</head>
+<body class="main_body">
+<div class="layui-layout layui-layout-admin">
+    <!-- 顶部 -->
+    <div class="layui-header header">
+        <div class="layui-main" style=" height: 100%; font-size: 28px; color: #fff; text-align: center; line-height: 60px; ">
+            <p>通讯录管理系统</p>
+            <p style=" position: absolute; top: 0px; right: 47px; font-size: 12px;"><a href="/" style=" color: #fff; text-decoration: underline; ">退出</a></p>
+        </div>
+    </div>
+    <!--左侧-->
+    <div class="layui-side layui-bg-black">
+        <div class="user-photo">
+            <a class="img" title="我的头像" ><img id="user-img" src="/static/images/profile/chuanzhang.jpg" alt="头像"></a>
+            <p>你好！<span class="userName" th:utext="${session.user.getName()}">昵称</span></p>
+        </div>
+        <div class="navBar layui-side-scroll">
+            <ul class="layui-nav layui-nav-tree">
+                <li class="layui-nav-item">
+                    <a href="javascript:;" data-url="/info/all/no" style="text-align: center;">
+                        <i class="iconfont icon-computer" data-icon="icon-computer"></i>
+                        <cite>全部</cite>
+                    </a>
+                </li>
+                <li class="layui-nav-item" th:each="major:${session.majors}">
+                    <a href="javascript:;" th:data-url="|/info/${major.id}/no|">
+                        <i class=" layui-icon iconfont layui-icon-user" data-icon=""></i>
+                        <cite th:text="${major.majorName}"></cite>
+                    </a>
+                </li>
+                <span class="layui-nav-bar" style="top:22px; height: 0; opacity: 0;"></span>
+            </ul>
+        </div>
+    </div>
+    <!--右侧-->
+    <div class="layui-body layui-form">
+        <div class="layui-tab marg0" lay-filter="bodyTab" id="top_tabs_box">
+            <ul class="layui-tab-title top_tab" id="top_tabs">
+                <li class="layui-this" lay-id=""><i class="iconfont icon-computer"></i> <cite></cite></li>
+            </ul>
+            <ul class="layui-nav closeBox">
+                <li class="layui-nav-item">
+                    <a href="javascript:;" class="mouse"><i class="iconfont icon-caozuo"></i> 页面操作</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="javascript:" class="refresh refreshThis"><i class="layui-icon">&#x1002;</i> 刷新当前</a></dd>
+                        <dd><a href="javascript:" class="closePageOther"><i class="iconfont icon-prohibit"></i> 关闭其他</a></dd>
+                        <dd><a href="javascript:" id="tab-close" class="closePageAll"><i class="iconfont icon-guanbi"></i> 关闭全部</a></dd>
+                    </dl>
+                </li>
+            </ul>
+            <div class="layui-tab-content clildFrame">
+                <div class="layui-tab-item layui-show">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="demoForm"  style="display: none;height:100%;" >
+    <div class="layui-col-md12">
+        <div class="layui-row grid-demo">
+            <div class="layui-col-md5">
+                <div class="top-user" style="text-align: center;padding: 20px">
+                    <div class="top-user-head" style="padding: 1px;background-color: #ff9a6c;border: 1px solid white;border-radius: 50%;display: inline-block;">
+                        <img src="/static/images/profile/chuanzhang.jpg" alt="" style=" display: block; width:80px; height: 80px; border-radius: 50%; ">
+                    </div>
+                    <div class="top-user-name " style=" text-align: center; " th:data-id="${session.user.getId()}">
+                        <span style="display: inline-block;font-size: 18px;margin-top: 10px;color: #FF5722;font-weight: bold;" th:text="${session.user.getName()}"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md7" style="padding-top: 20px;">
+                <div class="layui-form-item" style=" margin-top: 10px; font-size: 18px; ">
+                    <label class="layui-form-label">专业：</label>
+                    <div class="layui-input-block">
+                        <label class="layui-form-label " style="text-align: left;" th:text="${session.user.getMajor()}"></label>
+                    </div>
+                </div>
+                <div class="layui-form-item" style=" font-size: 18px; ">
+                    <label class="layui-form-label">班级：</label>
+                    <div class="layui-input-block">
+                        <label class="layui-form-label " style="text-align: left;" th:text="${session.user.getStudentClass()}"></label>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md9" style="margin-left: 12%;margin-top: 20px;font-size: 16px;">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">入校年份：</label>
+                    <div class="layui-input-block">
+                        <input type="text" class="layui-input" id="in-school" th:value="${session.user.getInSchool()}">
+                        <label class="tips password-tips"></label>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">离校年份：</label>
+                    <div class="layui-input-block">
+                        <input type="text" class="layui-input" id="leave-school" th:value="${session.user.getLeaveSchool()}">
+                        <label class="tips password-tips"></label>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">现居住地：</label>
+                    <div class="layui-input-block">
+                        <input type="text" class="layui-input" id="city" th:value="${session.user.getCity()}">
+                        <label class="tips password-tips"></label>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">工作单位：</label>
+                    <div class="layui-input-block">
+                        <input type="text" class="layui-input" id="work-location" th:value="${session.user.getWorkLocation()}">
+                        <label class="tips password-tips"></label>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">联系电话：</label>
+                    <div class="layui-input-block">
+                        <input type="text" class="layui-input" id="phone" th:value="${session.user.getPhone()}">
+                        <label class="tips password-tips"></label>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">联系邮箱：</label>
+                    <div class="layui-input-block">
+                        <input type="text" class="layui-input" id="email" th:value="${session.user.getEmail()}">
+                        <label class="tips password-tips"></label>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<script type="text/javascript" th:src="@{/static/layui/layui.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/common/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/backstage/index.js}"></script>
+<script>
+    $('.layui-nav-tree a').on("click",function () {
+        $("#tab-close").trigger("click");
+    });
+    /*时间插件。初始化，点击input时  出现日期选择*/
+    layui.use('laydate', function(){
+        var laydate = layui.laydate;
+        laydate.render({
+            elem: '#in-school' //指定元素
+        });
+        laydate.render({
+            elem: '#leave-school' //指定元素
+        });
+    });
+
+    /*以下js ，没有任何功能，用于调整页面*/
+
+    $("#top_tabs_box").on("contextmenu","#top_tabs li",function (e) {
+        e.preventDefault(); // 阻止右键菜单默认行为
+        var char = $("#top_tabs_box").width()-e.offsetX-$(this).width();
+        $("#top_tabs_box .layui-nav-child").addClass("layui-show");
+        $("#top_tabs_box .layui-nav-child").css("top","15px");
+        $("#top_tabs_box .layui-nav-child").css("left","-"+char+"px")
+    });
+    $("#top_tabs_box").on("click","#top_tabs li",function () {
+        $("#top_tabs_box .layui-nav-child").removeClass("layui-show");
+        $("#top_tabs_box .layui-nav-child").attr("style","");
+    });
+
+    $("#top_tabs_box .mouse").mouseover(function(){
+        $("#top_tabs_box .layui-anim-upbit").attr("style","");
+    });
+
+    function hideMenu(obj) {
+        var statu = obj.getAttribute("data-statu");
+        if(statu==1){
+            obj.classList.add("layui-icon-spread-left");
+            obj.classList.remove("layui-icon-shrink-right");
+            obj.setAttribute("data-statu",2);
+        }else {
+            obj.classList.add("layui-icon-shrink-right");
+            obj.classList.remove("layui-icon-spread-left");
+            obj.setAttribute("data-statu",1);
+        }
+    }
+    //生成从minNum到maxNum的随机数
+    function randomNum(minNum,maxNum){
+        switch(arguments.length){
+            case 1:
+                return parseInt(Math.random()*minNum+1,10);
+                break;
+            case 2:
+                return parseInt(Math.random()*(maxNum-minNum+1)+minNum,10);
+                break;
+            default:
+                return 0;
+        }
+    }
+    function test(obj) {
+        obj = obj||{};
+    }
+    var layers;
+    layui.use(['layer','form'], function(){
+        layers = layui.layer;
+    });
+    $("#user-img").on("click",function () {
+
+        layers.open({
+            type: 1,
+            title: ['个人资料', 'font-size:24px;text-align: center; padding: 0;'],
+            closeBtn:false,
+            area: ['50%', '80%'],
+            offset: '100px',
+            fixed:true,
+            content: $("#demoForm"),
+            btn: ['修改', '取消'],
+            yes: function (index, layero) {
+                var inSchool = $("#in-school").val(),
+                    leaveSchool = $("#leave-school").val(),
+                    workLocation = $("#work-location").val(),
+                    city = $("#city").val(),
+                    phone = $("#phone").val(),
+                    email = $("#email").val();
+                var reg = /^[1-9]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/;
+                var regExp = new RegExp(reg);
+                if(!regExp.test(inSchool)){
+                    layers.msg("入校日期格式有误");
+                    return;
+                }
+                if(!regExp.test(leaveSchool)){
+                    layers.msg("离校日期格式有误");
+                    return;
+                }
+                $.ajax({
+                    cache:false,
+                    type:'post',
+                    url:'/student/upInfo',
+                    data:{"id":$('.top-user-name').attr('data-id'),"inSchool": inSchool,"leaveSchool":leaveSchool,"workLocation":workLocation,"city":city,"phone":phone,"email":email},
+                    error:function () {
+                        alert("注册失败，请求出错")
+                    },
+                    success:function (data) {
+                        if(data.code==0){
+                            layer.close(index);
+                            layer.msg("资料修改成功，将同步到通讯录系统里。")
+                        }else {
+                            layer.close(index);
+                        }
+                    }
+                });
+            },
+            btn2: function (index,layero) {
+                layer.close(index);
+            },
+            success: function () {
+
+            }
+            //重新渲染 固定写法
+        });
+    })
+</script>
+</body>
+</html>

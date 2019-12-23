@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" th:href="@{/static/layui/css/layui.css}">
+    <style>
+        .layui-input{
+            width: 80%;
+        }
+    </style>
+</head>
+<body>
+<div class="content" style="margin-top: 10px;" th:data-lv="${session.user.getLv()}">
+    <!--通用头部-->
+    <div class="layedit-toolbar">
+        <div class="layui-inline">
+            <button id="refresh" type="button" class="layui-btn">刷新</button>
+        </div>
+    </div>
+    <table id="initial-table" lay-filter="initial-table"></table>
+</div>
+
+<script type="text/html" id="tableBar">
+    <a class="layui-btn layui-btn-xs" lay-event="del">删掉</a>
+</script>
+
+<script type="text/javascript" th:src="@{/static/layui/layui.js}"></script>
+<script>
+    var layers;
+    layui.use(['table', 'jquery','layer'], function () {
+        var table = layui.table,
+            $ = layui.jquery;
+        layers = layui.layer;
+        table.render({
+            id:"user",
+            elem: '#initial-table', //要加载数据的table对象
+            url: '/getNavigation',    //后台接口
+            title: '菜单',
+            where:{lv:$('.content').attr("data-lv")}, //额外参数
+            height: 700,  //固定高度，防止数据少时，分页显示太靠前
+            page: true,  //分页
+            limits: [20, 30, 40],//每页显示 选择项
+            limit: 20, //每页默认显示的数量
+            cols: [
+                [
+                    {type: 'checkbox', fixed: 'left'},
+                    {field: 'id', title: 'ID', width: 100, fixed: 'left',align:'center', unresize: true, sort: true},
+                    {field: 'navName', title: '菜单名',align:'center'},
+                    {field: 'navLv', title: '目录级别',align:'center'},
+                    {field: 'navParent', title: '父目录',align:'center'},
+                    {field: 'navUrl', title: '链接（html）',align:'center'},
+                    {field: 'navUse', title: '权限',align:'center',templet: function(row){
+                            var lvName;
+                            if(row.navUse==0){lvName="超级管理员"}else {lvName="普通管理员"}
+                            return lvName;
+                    }},
+                    {align: 'center', toolbar: '#tableBar', title: '操作', width: 200}
+                ]
+            ]
+        });
+
+        $("#refresh").click(function () {
+            $(".layui-laypage-btn").click()
+        })
+    });
+
+</script>
+</body>
+</html>
