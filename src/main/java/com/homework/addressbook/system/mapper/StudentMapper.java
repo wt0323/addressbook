@@ -10,11 +10,13 @@ import tk.mybatis.mapper.common.Mapper;
 import java.util.List;
 
 public interface StudentMapper extends Mapper<User> {
+
     Student getStudentName(@Param("loginName") String loginName);
 
     void updateStudent(Student student);
 
     void addStudent(Student student);
+    
 
     List<Student> getAllStudentInfo(@Param("search") String search);
 
