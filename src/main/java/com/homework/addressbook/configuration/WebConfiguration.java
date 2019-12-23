@@ -21,7 +21,6 @@ public class WebConfiguration implements WebMvcConfigurer {
         // 不需要限制的页面 添加白名单。不会进行拦截
         InterceptorRegistration interceptorRegistration = registry.addInterceptor(new LoginInterceptor());
         interceptorRegistration.addPathPatterns("/**");
-        
         interceptorRegistration.order(0);
         interceptorRegistration.excludePathPatterns("/");
         interceptorRegistration.excludePathPatterns("/login");
