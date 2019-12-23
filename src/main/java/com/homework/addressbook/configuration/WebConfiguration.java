@@ -17,9 +17,11 @@ public class WebConfiguration implements WebMvcConfigurer {
     // 这个方法用来注册拦截器，我们自己写好的拦截器需要通过这里添加注册才能生效
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+
         // 不需要限制的页面 添加白名单。不会进行拦截
         InterceptorRegistration interceptorRegistration = registry.addInterceptor(new LoginInterceptor());
         interceptorRegistration.addPathPatterns("/**");
+        
         interceptorRegistration.order(0);
         interceptorRegistration.excludePathPatterns("/");
         interceptorRegistration.excludePathPatterns("/login");

@@ -16,7 +16,6 @@ public interface StudentMapper extends Mapper<User> {
     void updateStudent(Student student);
 
     void addStudent(Student student);
-    
 
     List<Student> getAllStudentInfo(@Param("search") String search);
 
@@ -26,7 +25,9 @@ public interface StudentMapper extends Mapper<User> {
 
     void upStudentInfo(Student student);
 
+
     Student getStudentInfo(@Param("id")Integer id);
+
 
     void UpStudentTime(Integer id);
 
